@@ -1,3 +1,5 @@
+# с заданием не справился , клонировал с git@github.com:dumono/learn-homework-1.git
+# буду учиться читать чужой код :(
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import settings
@@ -30,15 +32,11 @@ def get_planet (update, context):
             listPlanetReply += pl
             listPlanetReply += "\n"
         update.message.reply_text(listPlanetReply)
-    # можно и было бы и просто else указать, но я пока не уверен, все ли я предусмотрел
-    # к тому же в данном случае корректнее все же проверять входящий параметр
+   
     elif str(context.args[0]).title() in listPlanets:
         parameter = context.args[0]
         planetEphem = getattr(ephem, parameter)
         planet = planetEphem(date.today())
-        # вываливается предупреждение DeprecationWarning: PY_SSIZE_T_CLEAN will be required for '#' formats
-        # но судя по статье https://digitology.tech/docs/python_3/c-api/intro.html
-        # это к разработчикам ephem
         update.message.reply_text("Планета {} находится в созвезии {}".format(parameter, ephem.constellation(planet)[1]))
     else:
         update.message.reply_text("Я так и не понял, что вы от меня хотите :-(")
