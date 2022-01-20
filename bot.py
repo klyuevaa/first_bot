@@ -1,63 +1,43 @@
-# с заданием не справился , клонировал с git@github.com:dumono/learn-homework-1.git
-# буду учиться читать чужой код :(
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import settings
-import ephem
-from datetime import date
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
-def greet_user(update, context):
-    print('Вызван /start')
-    update.message.reply_text("Привет, {}! Ты вызвал команду /start".format(update.message.from_user["username"]))
-    update.message.reply_text("ты можешь со мной поболтать, либо узнать инфу о планете")
-    update.message.reply_text("для этого используй команду /planet")
-    logging.info("connect username: {}".format(update.message.from_user["username"]))
-    print("connect username: {}".format(update.message.from_user["username"]))
-
-def get_planet (update, context):
-    listPlanets = []
-    for planets in ephem._libastro.builtin_planets():
-        if planets[1] == 'Planet':
-            listPlanets.append(planets[2])
-    if not context.args:
-        update.message.reply_text("Пожалуйста введите название планеты на английском")
-    elif len(context.args) > 1:
-        update.message.reply_text("За 1 раз можно посмотеть информацию только по одной планете")
-    elif not (str(context.args[0]).title() in listplanets):
-        update.message.reply_text("указанной Вами планеты нет в списке:")
-        listPlanetReply = ""
-        for pl in listPlanets:
-            listPlanetReply += pl
-            listPlanetReply += "\n"
-        update.message.reply_text(listPlanetReply)
-   
-    elif str(context.args[0]).title() in listPlanets:
-        parameter = context.args[0]
-        planetEphem = getattr(ephem, parameter)
-        planet = planetEphem(date.today())
-        update.message.reply_text("Планета {} находится в созвезии {}".format(parameter, ephem.constellation(planet)[1]))
-    else:
-        update.message.reply_text("Я так и не понял, что вы от меня хотите :-(")
-
-def talk_to_me(update, context):
-    user_text = update.message.text
-    print(user_text)
-    update.message.reply_text(user_text)
+# Настройки прокси
+PROXY = {'proxy_url': settings.PROXY_URL,
+    'urllib3_proxy_kwargs': {
+        'username': settings.PROXY_USERNAME,
+        'password': settings.PROXY_PASSWORD
+    }
+}
 
 def main():
-    mybot = Updater(settings.API_KEY)
+    # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
+    mybot = Updater(settings.API_KEY, use_context=True)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(CommandHandler("planet", get_planet))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info("Бот стартовал")
-
+    
+    # Командуем боту начать ходить в Telegram за сообщениями
     mybot.start_polling()
+    # Запускаем бота, он будет работать, пока мы его не остановим принудительно
     mybot.idle()
+def greet_user(update, context):
+    print('Вызван /start')
 
-if __name__ == '__main__':
+def greet_user(update, context):
+    print('Вызван /start')
+    update.message.reply_text('Привет, пользователь! Ты вызвал команду /start')
+def talk_to_me(update, context):
+    user_text = update.message.text 
+    print(user_text)
+    update.message.reply_text(user_text)       
+
+
+# Вызываем функцию main() - именно эта строчка запускает бота
+if __name__ == "__main__":
     main()
